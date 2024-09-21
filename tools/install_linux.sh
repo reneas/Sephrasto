@@ -1,9 +1,33 @@
 #!/bin/bash
 
+# Get the distributor information
+distribution=$(lsb_release -a 2>/dev/null | grep Distributor | awk '{print $3}')
+
+# Determine the package manager based on the distributor
+case "$distribution" in
+    Debian|Ubuntu)
+        packagemanager="apt"
+        ;;
+    NobaraLinux)
+        packagemanager="dnf"
+        ;;
+    #Arch) TODO: what is it called in arch and other distros?
+    #    packagemanager="sudo pacman -S --noconfirm"
+    #    ;;
+    *)
+        echo "Unsupported Linux distribution: $distribution"
+        echo "Supported distributions are Debian, Ubuntu, NobaraLinux."
+        exit 1
+        ;;
+esac
+
+# Print the message with colored words
+echo "Gefundene aktive Linux Distribution: $distribution"
+
 # install dependencies
 echo "Bitte gib dein Passwort ein, um die für Sephrasto erforderlichen Pakete zu installieren:"
-echo "sudo apt install -y python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml"
-sudo apt install python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml
+echo "sudo $packagemanager install -y python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml"
+sudo $packagemanager install python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml
 
 # download code from latest sephrasto release
 # git clone https://github.com/Aeolitus/Sephrasto.git
