@@ -1,5 +1,25 @@
 #!/bin/bash
 
+bold() {
+  echo -e "\e[1m$1\e[0m\n"
+}
+
+underline() {
+    echo -e "\e[4m$1\e[0m"
+}
+  
+bold_underline() {
+    echo -e "\e[1m\e[4m$1\e[0m"
+}
+  
+yellow() {
+    echo -e "\e[33m$$1\e[0m"
+}
+  
+bf_u_y() {
+    echo -e "\e[1m\e[4m\e[33m$1\e[0m"
+}
+
 # Get the distributor information
 distribution=$(lsb_release -a 2>/dev/null | grep Distributor | awk '{print $3}')
 
@@ -22,11 +42,13 @@ case "$distribution" in
 esac
 
 # Print the message with colored words
-echo "Gefundene aktive Linux Distribution: $distribution"
+echo "Gefundene aktive Linux Distribution: $(bf_u_y $distribution)"
 
 # install dependencies
+echo "Führe Befehl aus:"
+echo "$bold sudo $packagemanager install -y python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml"
 echo "Bitte gib dein Passwort ein, um die für Sephrasto erforderlichen Pakete zu installieren:"
-echo "sudo $packagemanager install -y python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml"
+
 sudo $packagemanager install python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml
 
 # download code from latest sephrasto release
