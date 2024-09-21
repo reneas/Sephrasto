@@ -1,7 +1,7 @@
 #!/bin/bash
 
 bold() {
-  echo -e "\e[1m$1\e[0m\n"
+  echo -e "\e[1m$1\e[0m"
 }
 
 underline() {
@@ -13,11 +13,15 @@ bold_underline() {
 }
   
 yellow() {
-    echo -e "\e[33m$$1\e[0m"
+    echo -e "\e[33m$1\e[0m"
 }
   
 bf_u_y() {
     echo -e "\e[1m\e[4m\e[33m$1\e[0m"
+}
+
+reset() {
+    echo -e "\e[0m"
 }
 
 # Get the distributor information
@@ -42,14 +46,24 @@ case "$distribution" in
 esac
 
 # Print the message with colored words
-echo "Gefundene aktive Linux Distribution: $(bf_u_y $distribution)"
+echo -e "\nGefundene aktive Linux Distribution: $(bf_u_y $distribution)\n"
+
+# Prompt the user for the installation directory
+echo -e "$(bold "Bitte geben Sie das Installationsverzeichnis ein") (hier wird der $(underline "Sephrasto Ordner") erstellt):"
+read -e -p "Installationsverzeichnis: " INSTALL
+
+echo -e "\n$(bold "Installiere Sephrasto in $(underline $INSTALL)")\n"
+
+mkdir -p $INSTALL/Sephrasto
+cd $INSTALL
+INSTALL=$(pwd)/Sephrasto
 
 # install dependencies
-echo "Führe Befehl aus:"
-echo "$bold sudo $packagemanager install -y python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml"
-echo "Bitte gib dein Passwort ein, um die für Sephrasto erforderlichen Pakete zu installieren:"
+echo -e $(bold "Installiere nötige Software:")
+echo -e "\nsudo $packagemanager install -y python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml"
+echo -e "Bitte gib dein Passwort ein, um die für Sephrasto erforderlichen Pakete zu installieren:\n"
 
-sudo $packagemanager install python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml
+sudo $packagemanager install -y python3-pip python3-venv openjdk-11-jdk pdftk libxcb-cursor0 python3-lxml
 
 # download code from latest sephrasto release
 # git clone https://github.com/Aeolitus/Sephrasto.git
@@ -60,23 +74,22 @@ curl -s https://api.github.com/repos/Aeolitus/Sephrasto/releases/latest \
 | xargs curl -L -o sephrasto_latest.tar.gz
 
 # extract sephrasto
-echo "Entpacke Sephrasto..."
-mkdir -p Sephrasto
+echo -e "\n$(bold "Entpacke Sephrasto...")"
 tar -xzf sephrasto_latest.tar.gz -C Sephrasto --strip-components=1
 rm sephrasto_latest.tar.gz
 
-INSTALL=$(pwd)/Sephrasto
+
 
 # create and install virtual environment
 # mkdir -p "$INSTALL/.venv"
-echo "Installiere virtuelle Umgebung..."
+echo -e "\n$(bold "Installiere virtuelle Umgebung in $(underline $INSTALL)")...\n"
 python3 -m venv "$INSTALL/.venv"
 source "$INSTALL/.venv/bin/activate"
 pip install -r $INSTALL/requirements.txt
 
 
 # Create desktop entry file (starter)
-echo "Erstelle Starter..."
+echo -e "\n$(bold "Erstelle Starter...")\n"
 cat <<EOL > Sephrasto.desktop
 [Desktop Entry]
 Encoding=UTF-8
@@ -94,11 +107,11 @@ chmod +x Sephrasto.desktop
 mkdir -p ~/.local/share/applications/
 mv Sephrasto.desktop ~/.local/share/applications/
 
-echo ""
-echo "Installation abgeschlossen."
-echo ""
-echo "Sephrasto wurde im Ordner $INSTALL installiert."
+
+echo $(bf_u_y "Installation abgeschlossen!")
+
+echo -e "\nSephrasto wurde im Ordner $(bold_underline $INSTALL) installiert."
 echo "Zum Updaten lösche diesen Ordner und führe den Installationsbefehl erneut aus."
 echo "Helden, Regeln und Plugins liegen in separaten Ordnern und bleiben erhalten."
-echo "Ein Starter wurde in ~/.local/share/applications/Sephrasto.desktop erstellt."
-echo "Sephrasto kann nun über das Startmenü gestartet werden."
+echo "Der Starter in $(bold_underline "~/.local/share/applications/Sephrasto.desktop") wurde erstellt."
+echo "Sephrasto kann nun über das Startmenü gestartet werden!"
